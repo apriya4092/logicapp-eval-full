@@ -227,4 +227,10 @@ cp bin/Release/net6.0/CustomerValidation.dll ../../logicapp/Artifacts/
   * `evidence/` with signed URL (redacted) and sample responses
 
 ---
+### Platform note
+This project runs on my macOS 11 laptop. The Logic Apps “local .NET” path was unreliable on this OS during local dev, so I hosted the same .NET validation as a small local API and invoked it via HTTP actions. Functionally it’s equivalent (same input/output and validation rules).
 
+### Why not upgrade now?
+Time-boxed exercise on a personal machine; OS upgrades can disrupt toolchains.  
+
+---
