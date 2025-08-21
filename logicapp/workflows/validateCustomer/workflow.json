@@ -1,0 +1,81 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2023-01-31-preview/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_an_HTTP_request_is_received": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "customerId": { "type": "string" },
+              "email": { "type": "string" },
+              "phoneNumber": { "type": "string" }
+            },
+            "required": ["customerId","email","phoneNumber"]
+          }
+        }
+      }
+    },
+    "actions": {
+      "Parse_JSON": {
+        "type": "ParseJson",
+        "inputs": {
+          "content": "@triggerBody()",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "customerId": { "type": "string" },
+              "email": { "type": "string" },
+              "phoneNumber": { "type": "string" }
+            },
+            "required": ["customerId","email","phoneNumber"]
+          }
+        },
+        "runAfter": {}
+      },
+      "HTTP_ValidateEmail": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "http://localhost:7072/api/ValidateEmail",
+          "headers": { "Content-Type": "application/json" },
+          "body": { "value": "@{body('Parse_JSON')?['email']}" }
+        },
+        "runAfter": { "Parse_JSON": ["Succeeded"] }
+      },
+      "HTTP_ValidatePhone": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "http://localhost:7072/api/ValidatePhoneNumber",
+          "headers": { "Content-Type": "application/json" },
+          "body": { "value": "@{body('Parse_JSON')?['phoneNumber']}" }
+        },
+        "runAfter": { "HTTP_ValidateEmail": ["Succeeded"] }
+      },
+      "Compose_Response": {
+        "type": "Compose",
+        "inputs": {
+          "customerId": "@{body('Parse_JSON')?['customerId']}",
+          "emailValidation": "@{body('HTTP_ValidateEmail')}",
+          "phoneValidation": "@{body('HTTP_ValidatePhone')}",
+          "status": "@{if(and(body('HTTP_ValidateEmail')?['IsValid'], body('HTTP_ValidatePhone')?['IsValid']), 'Success', 'Error')}"
+        },
+        "runAfter": { "HTTP_ValidatePhone": ["Succeeded"] }
+      },
+      "Return_Response": {
+        "type": "Response",
+        "kind": "Http",
+        "inputs": {
+          "statusCode": "@{if(equals(outputs('Compose_Response')?['status'], 'Success'), 200, 400)}",
+          "body": "@outputs('Compose_Response')"
+        },
+        "runAfter": { "Compose_Response": ["Succeeded"] }
+      }
+    }
+  },
+  "kind": "Stateful"
+}

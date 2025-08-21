@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Azurite / local storage
+__azurite_db*
+__blobstorage__/
+*.log
+
+# VS Code workspace
+.vscode/
+
+# Do not commit raw signed URLs or local secrets
+evidence/callback-url.txt
+logicapp/local.settings.json

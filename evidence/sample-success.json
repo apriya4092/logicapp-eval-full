@@ -1,0 +1,12 @@
+{"customerId":"12345","emailValidation":"{\"isValid\":true,\"message\":\"Email is valid\"}","phoneValidation":"{\"isValid\":true,\"message\":\"Phone number is valid\"}","status":"Success"}
+
+
+/* I ran below command:
+
+saipriyaanumula@Sais-MacBook-Air ~ % curl -i -sS -X POST "$CALLBACK" -H "Content-Type: application/json" -d '{
+  "customerId":"12345",
+  "email":"john.doe@example.com",
+  "phoneNumber":"123-456-7890"
+}'
+
+*/
